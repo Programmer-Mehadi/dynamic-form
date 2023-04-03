@@ -9,10 +9,17 @@ function App() {
   const [fields, setFields] = useState(null);
   const [childFieldsNumber, setchildFieldsNumber] = useState(null);
   const [childFields, setChildFields] = useState(null);
+  const [formData, setFormData] = useState({
+    fieldName: "",
+    inputType: selectedFieldType,
+    placeholder: "",
+    label: "",
+    value: "",
+    min: "",
+    max: "",
+    child: [],
+  });
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-  };
   useEffect(() => {
     if (selectedFieldType !== null && selectedFieldType !== "") {
       if (
@@ -26,11 +33,6 @@ function App() {
               name: "fieldName",
               value: "",
               title: "Give a field name",
-            },
-            {
-              name: "placeholder",
-              value: "",
-              title: "Give a placeholder",
             },
             {
               name: "label",
@@ -130,25 +132,83 @@ function App() {
     if (childFieldsNumber > 0) {
       let array = [];
       for (let i = 0; i < childFieldsNumber; i++) {
-        array.push([
-          {
-            title: "Give a title",
-            value: "",
-            name: "title",
-          },
-          {
-            title: "Give a value",
-            value: false,
-            name: "value",
-          },
-        ]);
+        if (selectedFieldType === "checkbox") {
+          array.push([
+            {
+              title: "Give a title",
+              value: "",
+              name: "title",
+            },
+            {
+              title: "Give a field name",
+              value: false,
+              name: "fieldName",
+            },
+          ]);
+        } else {
+          array.push([
+            {
+              title: "Give a title",
+              value: "",
+              name: "title",
+            },
+            {
+              title: "Give a field name",
+              value: false,
+              name: "fieldName",
+            },
+            {
+              title: "Give a value",
+              value: false,
+              name: "value",
+            },
+          ]);
+        }
       }
       setChildFields(array);
+      let array2 = [];
+      for (let i = 0; i < childFieldsNumber; i++) {
+        array2.push({
+          placeholder: "",
+          fieldName: "",
+          value: false,
+        });
+      }
+      setFormData({ ...formData, child: [...array2] });
     }
   }, [childFieldsNumber]);
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+  };
+
+  const handleAddField = async (event) => {
+    event.preventDefault();
+    dispatch({
+      type: "ADD_FIELD",
+      payload: {
+        data: formData,
+      },
+    });
+    event.target.reset();
+    setFormData({
+      fieldName: "",
+      inputType: selectedFieldType,
+      placeholder: "",
+      label: "",
+      value: "",
+      min: "",
+      max: "",
+      child: [],
+    });
+    setFields([]);
+    setChildFields([]);
+    setchildFieldsNumber(null);
+
+    document.getElementById("my-modal-3").checked = false;
+  };
   return (
-    <div className="p-4 md:p-8 bg-sky-950">
+    <div className="p-4 md:p-8 bg-sky-950 min-h-[100vh]">
       <h2 className="text-[35px] font-bold text-slate-950 bg-slate-400 border-2 border-slate-600 rounded-[8px] p-2 md:p-8 py-1 md:py-2 text-center max-w-[600px] mx-auto my-6 shadow-sm uppercase">
         Dynamic Form
       </h2>
@@ -302,11 +362,13 @@ function App() {
         </div>
         {/* btn list */}
         <div className="my-6 mt-10 flex flex-wrap gap-2">
-          <input
-            type="submit"
-            className="btn btn-sm btn-success"
-            value={"Submit"}
-          />
+          {fields && (
+            <input
+              type="submit"
+              className="btn btn-sm btn-success"
+              value={"Submit"}
+            />
+          )}
           <label htmlFor="my-modal-3" className="btn btn-sm btn-info">
             Add Field
           </label>
@@ -324,18 +386,29 @@ function App() {
                 setSelectedFieldType(null);
                 setFields([]);
                 setChildFields([]);
+                setFormData({
+                  fieldName: "",
+                  inputType: selectedFieldType,
+                  placeholder: "",
+                  label: "",
+                  value: "",
+                  min: "",
+                  max: "",
+                  child: [],
+                });
               }, 1000);
             }}
           >
             ✕
           </label>
           <h3 className="text-lg font-bold">Add new field</h3>
-          <div className="mt-6">
+          <form onSubmit={handleAddField} className="mt-6">
             <select
               className="select select-bordered w-full"
               onChange={(e) => {
                 setSelectedFieldType(e.target.value);
                 setChildFields([]);
+                setFormData({ ...formData, inputType: e.target.value });
               }}
               defaultValue={null}
             >
@@ -344,7 +417,7 @@ function App() {
               </option>
               <option value="text">Text</option>
               <option value="number">Number</option>
-              <option value="range">range</option>
+              <option value="range">Range</option>
               <option value="checkbox">CheckBox</option>
               <option value="radio">Radio</option>
               <option value="textarea">Textarea</option>
@@ -352,7 +425,7 @@ function App() {
             </select>
             {fields && (
               <div className="mt-4 grid gap-4">
-                {fields?.map((f) => {
+                {fields?.map((f, index) => {
                   if (f.name === "child") {
                     return (
                       <div>
@@ -375,6 +448,15 @@ function App() {
                           type="text"
                           placeholder="Type here"
                           className="input input-bordered w-full"
+                          onChange={(e) => {
+                            let newData = formData;
+                            for (const property in newData) {
+                              if (property == f.name) {
+                                newData[property] = e.target.value;
+                              }
+                            }
+                            setFormData({ ...newData });
+                          }}
                         />
                       </div>
                     );
@@ -402,6 +484,31 @@ function App() {
                                   type="text"
                                   placeholder="Type here"
                                   className="input input-bordered w-full"
+                                  onChange={(e) => {
+                                    let newData = formData.child;
+                                    for (let i = 0; i < newData.length; i++) {
+                                      if (i === index) {
+                                        newData[i] = {
+                                          placeholder:
+                                            child.name === "title"
+                                              ? e.target.value
+                                              : newData[i].placeholder,
+                                          fieldName:
+                                            child.name === "fieldName"
+                                              ? e.target.value
+                                              : newData[i].fieldName,
+                                          value:
+                                            child.name === "value"
+                                              ? e.target.value
+                                              : newData[i].value,
+                                        };
+                                      }
+                                    }
+                                    setFormData({
+                                      ...formData,
+                                      child: [...newData],
+                                    });
+                                  }}
                                 />
                               </>
                             );
@@ -413,7 +520,10 @@ function App() {
                 )}
               </div>
             )}
-          </div>
+            <div className="flex justify-center">
+              <button className="btn btn-success mt-3 w-full">Add Field</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
