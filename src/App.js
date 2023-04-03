@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import { useEffect, useState } from "react";
+import react from "./img/react.png";
+import redux from "./img/redux.png";
 
 function App() {
   const dispatch = useDispatch();
@@ -209,8 +211,10 @@ function App() {
   };
   return (
     <div className="p-4 md:p-8 bg-sky-950 min-h-[100vh]">
-      <h2 className="text-[35px] font-bold text-slate-950 bg-slate-400 border-2 border-slate-600 rounded-[8px] p-2 md:p-8 py-1 md:py-2 text-center max-w-[600px] mx-auto my-6 shadow-sm uppercase">
-        Dynamic Form
+      <h2 className="heading text-[20px] md:text-[35px] font-bold text-slate-950 bg-slate-100 border-2 border-slate-600 rounded-[8px] p-2 md:p-8 py-1 md:py-2 text-center max-w-[600px] mx-auto my-6 shadow-sm uppercase flex gap-4 justify-center items-center">
+        <img src={react} className="w-[43px] h-[43px]" alt="" />{" "}
+        <span>Dynamic Form</span>
+        <img src={redux} alt="" className="w-[64px] h-[64px]" />
       </h2>
       <form
         className="w-full max-w-[800px] mx-auto bg-slate-300 p-4 md:p-16 rounded-[8px]"
