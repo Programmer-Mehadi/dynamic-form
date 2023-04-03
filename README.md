@@ -2,7 +2,7 @@
 
 - https://super-form.netlify.app/
 
-# React , Redux , TailwindCSS
+# Used: React , Redux , TailwindCSS
 
 
 
