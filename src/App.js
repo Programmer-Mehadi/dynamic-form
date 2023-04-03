@@ -1,12 +1,151 @@
 import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
+import { useEffect, useState } from "react";
 
 function App() {
   const dispatch = useDispatch();
   const fieldList = useSelector((state) => state.fieldList);
+  const [selectedFieldType, setSelectedFieldType] = useState(null);
+  const [fields, setFields] = useState(null);
+  const [childFieldsNumber, setchildFieldsNumber] = useState(null);
+  const [childFields, setChildFields] = useState(null);
+
   const handleSubmit = (event) => {
     event.preventDefault();
   };
+  useEffect(() => {
+    if (selectedFieldType !== null && selectedFieldType !== "") {
+      if (
+        selectedFieldType === "text" ||
+        selectedFieldType === "number" ||
+        selectedFieldType === "range"
+      ) {
+        if (selectedFieldType === "range") {
+          setFields([
+            {
+              name: "fieldName",
+              value: "",
+              title: "Give a field name",
+            },
+            {
+              name: "placeholder",
+              value: "",
+              title: "Give a placeholder",
+            },
+            {
+              name: "label",
+              value: "",
+              title: "Give a label",
+            },
+            {
+              name: "value",
+              value: "",
+              title: "Give a default value",
+            },
+            {
+              name: "min",
+              value: "",
+              title: "Give a minimum value",
+            },
+            {
+              name: "max",
+              value: "",
+              title: "Give a maximum value",
+            },
+          ]);
+        } else {
+          setFields([
+            {
+              name: "fieldName",
+              value: "",
+              title: "Give a field name",
+            },
+            {
+              name: "placeholder",
+              value: "",
+              title: "Give a placeholder",
+            },
+            {
+              name: "label",
+              value: "",
+              title: "Give a label",
+            },
+            {
+              name: "value",
+              value: "",
+              title: "Give a default value",
+            },
+          ]);
+        }
+      } else if (selectedFieldType === "textarea") {
+        setFields([
+          {
+            name: "fieldName",
+            value: "",
+            title: "Give a field name",
+          },
+          {
+            name: "label",
+            value: "",
+            title: "Give a label",
+          },
+          {
+            name: "value",
+            value: "",
+            title: "Give a default value",
+          },
+        ]);
+      } else if (
+        selectedFieldType === "checkbox" ||
+        selectedFieldType === "radio" ||
+        selectedFieldType === "select"
+      ) {
+        setFields([
+          {
+            name: "fieldName",
+            value: "",
+            title: "Give a field name",
+          },
+          {
+            name: "label",
+            value: "",
+            title: "Give a label",
+          },
+          {
+            name: "value",
+            value: "",
+            title: "Give a default value",
+          },
+          { name: "child", value: [] },
+        ]);
+      }
+    } else {
+      setFields(null);
+      setchildFieldsNumber(null);
+      setChildFields(null);
+    }
+  }, [selectedFieldType]);
+
+  useEffect(() => {
+    if (childFieldsNumber > 0) {
+      let array = [];
+      for (let i = 0; i < childFieldsNumber; i++) {
+        array.push([
+          {
+            title: "Give a title",
+            value: "",
+            name: "title",
+          },
+          {
+            title: "Give a value",
+            value: false,
+            name: "value",
+          },
+        ]);
+      }
+      setChildFields(array);
+    }
+  }, [childFieldsNumber]);
 
   return (
     <div className="p-4 md:p-8 bg-sky-950">
@@ -162,15 +301,114 @@ function App() {
           })}
         </div>
         {/* btn list */}
-        <div className="my-6 mt-10 flex flex-wrap gap-6">
+        <div className="my-6 mt-10 flex flex-wrap gap-2">
           <input
             type="submit"
             className="btn btn-sm btn-success"
             value={"Submit"}
           />
-          <input className="btn btn-sm btn-info" value={"Add new field"} />
+          <label htmlFor="my-modal-3" className="btn btn-sm btn-info">
+            Add Field
+          </label>
         </div>
       </form>
+      {/* Put this part before </body> tag */}
+      <input type="checkbox" id="my-modal-3" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box relative">
+          <label
+            htmlFor="my-modal-3"
+            className="btn btn-sm btn-circle absolute right-2 top-2"
+          >
+            ✕
+          </label>
+          <h3 className="text-lg font-bold">Add new field</h3>
+          <div className="mt-6">
+            <select
+              className="select select-bordered w-full"
+              onChange={(e) => {
+                setSelectedFieldType(e.target.value);
+                setChildFields([]);
+              }}
+              defaultValue={null}
+            >
+              <option selected value="">
+                Select Type
+              </option>
+              <option value="text">Text</option>
+              <option value="number">Number</option>
+              <option value="range">range</option>
+              <option value="checkbox">CheckBox</option>
+              <option value="radio">Radio</option>
+              <option value="textarea">Textarea</option>
+              <option value="select">Select</option>
+            </select>
+            {fields && (
+              <div className="mt-4 grid gap-4">
+                {fields?.map((f) => {
+                  if (f.name === "child") {
+                    return (
+                      <div>
+                        <label>How many {selectedFieldType} you need</label>
+                        <input
+                          name={f.name}
+                          type="number"
+                          placeholder="Type number"
+                          className="input input-bordered w-full"
+                          onChange={(e) => setchildFieldsNumber(e.target.value)}
+                        />
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div>
+                        <label>{f.title}</label>
+                        <input
+                          name={f.name}
+                          type="text"
+                          placeholder="Type here"
+                          className="input input-bordered w-full"
+                        />
+                      </div>
+                    );
+                  }
+                })}
+                {childFieldsNumber > 0 && (
+                  <>
+                    {childFields?.map((c, index) => {
+                      return (
+                        <div className="border p-3 rounded-[8px]">
+                          <p className="text-green-600 my-2 font-bold uppercase">
+                            {selectedFieldType.slice(0, 1).toUpperCase() +
+                              selectedFieldType.slice(
+                                1,
+                                selectedFieldType.length
+                              )}
+                            : {index + 1}
+                          </p>
+                          {c.map((child) => {
+                            return (
+                              <>
+                                <label>{child.title}</label>
+                                <input
+                                  name={child.name}
+                                  type="text"
+                                  placeholder="Type here"
+                                  className="input input-bordered w-full"
+                                />
+                              </>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
